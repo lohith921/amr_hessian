@@ -1,29 +1,29 @@
-function [Hess1, Hess2]=Quadratic_fit_modified(p,e,t,sol)
+function [Hess1 ]=Quadratic_fit_modified(p, e, t, sol)
 % p-points, e-edges, t-triangles
 nnodes = length(p);
-Hess1=zeros(nnodes,1);
-Hess2=zeros(nnodes,1);
+Hess1 = zeros(nnodes,1);
+Hess2 = zeros(nnodes,1);
 for k=1:nnodes
  % checking which triangles have node k as first vertex
-  t1 = find(e(1,:) == k);
+  t1 = find(t(1,:) == k);
  % triangle t1 has node k as first vertex, lets look for other vertices
   nb1 = find(t(2,t1));
   nb2 = find(t(3,t1));
   
  % checking which triangles have node k as second vertex
-  t2 = find(e(2,:) == k);
+  t2 = find(t(2,:) == k);
  % t2 has node k as 2nd vertex, lets look for other vertices
   nb3 = find(t(1,t2));
   nb4 = find(t(3,t2));
   
  % checking which triangles have node k as third vertex
- t3 = find(e(3,:) == k);
+ t3 = find(t(3,:) == k);
  % t3 has node k as 23rd vertex, lets look for other vertices
   nb5 = find(t(1,t3));
   nb6 = find(t(3,t3));
  % neighbs- neighbour vector 
-  neighbs=[nb1 nb2 nb3 nb4 nb5 nb6];
-  neighbs1=unique(neighbs);
+  neighbs = [nb1 nb2 nb3 nb4 nb5 nb6];
+  neighbs1 = unique(neighbs);
  % Nodes- node vector to hold upto 6 nodes including the current one to fit
  % the curve.
   Nodes=zeros(6,1);
@@ -80,8 +80,9 @@ for k=1:nnodes
   % there is some rank issue sort it out.
   c = U\A;
   hess = [2*c(1) c(3); c(3) 2*c(2)];
-  Hess1(k)=norm(hess);
-  Hess2(k)=norm(hess,2);
+  hess
+  % Hess1(k)=norm(hess);
+  %Hess2(k)=norm(hess,2);
 end
 %end
   
