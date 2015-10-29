@@ -48,6 +48,7 @@ setappdata(pde_fig,'refinemethod','regular');
 setappdata(pde_fig,'jiggle',char('on','mean',''));
 setappdata(pde_fig,'MesherVersion','preR2013a');
 pdetool('initmesh')
+pdetool('refine')
 
 % PDE coefficients:
 pdeseteq(1,...
