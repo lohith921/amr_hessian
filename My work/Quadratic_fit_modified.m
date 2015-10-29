@@ -79,8 +79,17 @@ for k=1:nnodes
   end
   % there is some rank issue sort it out.
   c = U\A;
+  %A1 = inv(A);
+  %c = A1*U;
+  %lets try c=(A'A)inverse*A'*U
+  %A1 = A'*A;
+  %A2=inverse(A1);
+  %c=A2*A'*U;  
   hess = [2*c(1) c(3); c(3) 2*c(2)];
-  hess
+  %hess
+  % Frobenius norm
+  %Hess1(k) = norm(hess);
+  Hess1(k) = norm(hess,Inf);
   % Hess1(k)=norm(hess);
   %Hess2(k)=norm(hess,2);
 end
