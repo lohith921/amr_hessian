@@ -82,20 +82,23 @@ for k=1:nnodes
           A(i,5) = y;
       end
   end
-  format long
+  % format long
   % there is some rank issue sort it out.
   if(s<6) % under determined system
       % x = M'inv(MM')Y
       At = A';
       At1 = A*At;
+      %At2 = At\At1;
       At2 = At*inv(At1);
-      c = U\At2;
-  elseif(s>6)
+      c = At2*U;
+  elseif(s>6) % over determined system
       % x=inv(M'M)M'y
           At = A';
           At1 = At*A;
           At2 = inv(At1)*At;
-          c = U\At2;
+          %At2 = At\At1;
+          %c = U\At2;
+          c = At2*U;
   else
           c = U\A;
   end
@@ -106,12 +109,14 @@ for k=1:nnodes
   %A2=inverse(A1);
   %c=A2*A'*U;  
   hess = [2*c(1) c(3); c(3) 2*c(2)];
-  %hess
   % Frobenius norm
-  Hess1(k) = norm(hess);
-  %Hess1(k) = norm(hess,Inf);
+  %Hess1(k) = norm(hess);
+  Hess1(k) = norm(hess,Inf);
   % Hess1(k)=norm(hess);
-  %Hess2(k)=norm(hess,2);
+  
+ %******************************************************************5
+ % lets begin the refinement part %
+ write_file(p,e,t,Hess,'Elliptic');
 end
 %end
   
