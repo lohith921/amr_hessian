@@ -1,4 +1,4 @@
-function [Hess1 ]=Quadratic_fit_modified_1(p, e, t, sol)
+function [Hess1]=Quadratic_fit_modified_1(p, e, t, sol)
 % This function incorporates methods for under and over determined systems.
 % p-points, e-edges, t-triangles
 nnodes = length(p);
@@ -46,12 +46,11 @@ for k=1:nnodes
     %   now lets extract X, Y values for nodes and construct the matrix system
     %   Ac=u
     A=zeros(s,6);
+    c = zeros(6,1);
     A(:,6)=1;
     for i=1:s
         if(Nodes(i,1)~=0)
-            n=Nodes(i,1);
-            % X(i,1)=p(1,n);
-            % Y(i,1)=p(2,n);
+            n = Nodes(i,1);
             x = p(1,n);
             y = p(2,n);
             U(i,1)=sol(n,1);
@@ -76,8 +75,8 @@ for k=1:nnodes
     if(s<6) % under determined system x = M'inv(MM')Y
         M = A*A';
         if M == M' % checking if M is symmetric
-            [T,p] = chol(M); % trying to get the cholesky factorization.
-            if p==0 % means M is positive definite, T is valid
+            [T,p1] = chol(M); % trying to get the cholesky factorization.
+            if p1==0 % means M is positive definite, T is valid
                 w = T\U;
                 z = T'\w;
                 c = A'*z; % solving for coefficient matrix c
@@ -86,33 +85,32 @@ for k=1:nnodes
     elseif(s>6) % over determined system x=inv(M'M)M'y
         rk = rank(A);
         if(rk<min(s,6))
-%       [Q,R]=qr(A);
-            R = QR_HOUSE(A);
+            %       [Q,R]=qr(A);
+            R = QR_HOUSE(A); 
             Q = Q_HOUSE(R);
             y = U\Q;
             c = y\R;
         end
-        else
-            c = U\A;
-        end
-        hess = [2*c(1) c(3); c(3) 2*c(2)];
-        % Frobenius norm
-        %Hess1(k) = norm(hess);
-        Hess1(k) = norm(hess,Inf);
-        % Hess1(k)=norm(hess);
-        %******************************************************************5
-        % lets begin the refinement part %
-%        write_file(p,e,t,Hess,'Elliptic');
+    else
+        c = U\A;
     end
-    %end
-    %A1 = inv(A);
-        %c = A1*U;
-        %lets try c=(A'A)inverse*A'*U
-        %A1 = A'*A;
-        %A2=inverse(A1);
-        %c=A2*A'*U;
-  
-  
-  
+    hess = [2*c(1) c(3); c(3) 2*c(2)];
+    % Frobenius norm
+    %Hess1(k) = norm(hess);
+    Hess1(k) = norm(hess,Inf);
+    % Hess1(k)=norm(hess);
+    %******************************************************************5
+    % lets begin the refinement part %
+    %        write_file(p,e,t,Hess,'Elliptic');
+end
+%end
+%A1 = inv(A);
+%c = A1*U;
+%lets try c=(A'A)inverse*A'*U
+%A1 = A'*A;
+%A2=inverse(A1);
+%c=A2*A'*U;
 
-  
+
+
+
