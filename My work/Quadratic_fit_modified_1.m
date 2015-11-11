@@ -24,7 +24,7 @@ for k=1:nnodes
     neighbs = neighbs';
     neighbs1 = unique(neighbs);
     % s is the # of neighbours
-    [s,z] = size(neighbs1);
+    [s, z] = size(neighbs1);
     % Nodes- node vector to hold nodes including the current one to fit  the curve.
     Nodes = zeros(s,1);
     %  X-vector to hold x coordinates of nodes selected.
