@@ -84,12 +84,14 @@ for k=1:nnodes
         end
     elseif(s>6) % over determined system x=inv(M'M)M'y
         rk = rank(A);
-        if(rk<min(s,6))
+        if(rk >= min(s,6)) % A has full rank.
             %       [Q,R]=qr(A);
             R = QR_HOUSE(A); 
             Q = Q_HOUSE(R);
             y = U\Q;
             c = y\R;
+        else
+            [ Q R E]=qr(A);
         end
     else
         c = U\A;
