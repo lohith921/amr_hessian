@@ -24,15 +24,16 @@ for k=1:nnodes
     neighbs = neighbs';
     neighbs1 = unique(neighbs);
     % s is the # of neighbours
-    [s, z] = size(neighbs1);
+    [s, ~] = size(neighbs1);
     % Nodes- node vector to hold nodes including the current one to fit  the curve.
     Nodes = zeros(s,1);
     %  X-vector to hold x coordinates of nodes selected.
     %  X = zeros(s,1);
     %  Y-vector to hold y coordinates of all 6 nodes selected.
     %  Y = zeros(s,1);
-    %  U-solution vector for the nodes selected.
-    U = zeros(s,1);
+    %  b-solution vector for the nodes selected. choosing for easy notation
+    %  purpose while using LU
+    b = zeros(s,1);
     Nodes(1,1) = k;
     i = 2;
     % code for constructing node vector sx1
@@ -53,7 +54,7 @@ for k=1:nnodes
             n = Nodes(i,1);
             x = p(1,n);
             y = p(2,n);
-            U(i,1)=sol(n,1);
+            b(i,1)=sol(n,1);
             A(i,1) = x*x;
             A(i,2) = y*y;
             A(i,3) = x*y;
@@ -62,7 +63,7 @@ for k=1:nnodes
         else
             x = 0;
             y = 0;
-            U(i,1)=0;
+            b(i,1)=0;
             A(i,1) = x*x;
             A(i,2) = y*y;
             A(i,3) = x*y;
@@ -77,7 +78,7 @@ for k=1:nnodes
         if M == M' % checking if M is symmetric
             [T,p1] = chol(M); % trying to get the cholesky factorization.
             if p1==0 % means M is positive definite, T is valid
-                w = T\U;
+                w = T\b;
                 z = T'\w;
                 c = A'*z; % solving for coefficient matrix c
             end
@@ -85,16 +86,24 @@ for k=1:nnodes
     elseif(s>6) % over determined system x=inv(M'M)M'y
         rk = rank(A);
         if(rk >= min(s,6)) % A has full rank.
-            %       [Q,R]=qr(A);
-            R = QR_HOUSE(A); 
+            % [Q,R]=qr(A); QR factorization.
+            R = QR_HOUSE(A);
             Q = Q_HOUSE(R);
-            y = U\Q;
+            % We have obtained Q:mxm, R: mx6 we need to solve Qy=b for and
+            % then Rc = y for c. (y = b\Q)
+            if(rank(Q)==s) % checking if Q has ful rank.
+                [L,U] = lu(Q); % LU factorization
+                c1 = b\L;
+                y = c1\U; % U is the upper triangular matrix.
+            else
+            y = b\Q;
+            end 
             c = y\R;
-        else
+        else % A doesnot have full rank.
             [ Q R E]=qr(A);
         end
     else
-        c = U\A;
+        c = b\A;
     end
     hess = [2*c(1) c(3); c(3) 2*c(2)];
     % Frobenius norm
