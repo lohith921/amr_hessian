@@ -89,38 +89,30 @@ for k=1:nnodes
             % [Q,R]=qr(A); QR factorization.
             R = QR_HOUSE(A);
             Q = Q_HOUSE(R);
-            % We have obtained Q:mxm, R: mx6 we need to solve Qy=b for and
-            % then Rc = y for c. (y = b\Q)
-            if(rank(Q)==s) % checking if Q has ful rank.
-                [L,U] = lu(Q); % LU factorization
-                c1 = b\L;
-                y = c1\U; % U is the upper triangular matrix.
-            else
-            y = b\Q;
-            end 
-            c = y\R;
-        else % A doesnot have full rank.
-            [ Q R E]=qr(A);
+            u = Q'*b;
+            % solving for c by backward substitution
+            c(6) = b(6)/R(6,6);
+            for i = n:1
+                for j= i+1:n
+                    su = su + R(i,j)*c(i);
+                end
+                c(i) = (b(i)-su)/R(i,i);
+            end
         end
+%         else % A doesnot have full rank.
+%             [ Q R E]=qr(A);
+%         end
     else
         c = b\A;
     end
     hess = [2*c(1) c(3); c(3) 2*c(2)];
-    % Frobenius norm
-    %Hess1(k) = norm(hess);
     Hess1(k) = norm(hess,Inf);
     % Hess1(k)=norm(hess);
     %******************************************************************5
     % lets begin the refinement part %
     %        write_file(p,e,t,Hess,'Elliptic');
 end
-%end
-%A1 = inv(A);
-%c = A1*U;
-%lets try c=(A'A)inverse*A'*U
-%A1 = A'*A;
-%A2=inverse(A1);
-%c=A2*A'*U;
+
 
 
 
