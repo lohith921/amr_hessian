@@ -116,24 +116,96 @@ for k=1:nnodes
     % Hess1(k) = norm(hess,Inf);
     % Hess1(k)=norm(hess);   
 end
- % lets begin the refinement part, working on edges %
-    nedges = length(e);
-    for i=1:nedges
-        n1 = e(1,i);
-        n2 = e(2,i);
-        v1 = p(:,n1); % vertex 1
-        v2 = p(:,n2); % vertex 2
-        M1 = metric_t(:,:,n1);
-        M2 = metric_t(:,:,n2);
-        Mavg = (M1+M2)/2;
-        v = v1 - v2;
-        vt = v.';
-        temp = Mavg*v;
-        L = sqrt((vt)*temp);       
-        fprintf('\nlength of edge %f and %d is',n1,n2);
-        L 
+% lets consider swapping edges
+ntris = length(t);
+nedge = length(e);
+for i = 1:ntris-1
+    x = t(1,i);
+    y = t(2,i);
+    z = t(3,i);
+    X = p(:,x);
+    Y = p(:,y);
+    Z = p(:,z);
+    j = 1;
+    while(j~=ntris)
+        if(t(1,j)==y && t(3,j)==z)
+           flag = 1;
+           w = t(2,j);
+           break;
+        elseif( t(3,j)==y && t(2,j) == z)
+            flag = 2;
+            w = t(1,j);
+            break;
+        elseif(t(2,j)==y && t(1,j)==z)
+            flag = 3;
+            w = t(3,j);
+            break;
+        else
+            j = j+1;
+        end
+    end
+    W = p(:,w);
+%     T = find((t(1,:)==x) & (t(3,:)==y));
+    Mavg = (metric_t(:,:,x) + metric_t(:,:,y) + metric_t(:,:,z) + metric_t(:,:,w))/4;
+    L1 = Y-X;
+    L2 = Z-X;
+    L3 = Z-W;
+    L4 = Y-W;
+    t1 = L1(1,:)*L2(2,:)-L1(2,:)*L2(1,:);
+    t2 = (Z-W).' * Mavg * (Y-W);
+    t3 = (Y-X).' * Mavg * (Z-X);
+    t4 = L3(1,:)*L4(2,:)-L3(2,:)*L4(1,:);
+    if (t1*t2 + t3*t4)<0
+        ed = 1;
+        while(ed ~= nedge)
+            k = ed;
+         if (e(1,k)==y && e(2,k)==z) 
+             e(1,k) = w;
+             e(2,k) = x;
+             break;
+         elseif (e(2,k)==y && e(1,k)==z)
+             e(2,k) = w;
+             e(1,k) = x;
+             break;
+         else
+             ed = ed + 1;
+         end
+        end
+        t(3,i) = w;
+        t(1,j) = w;
+        t(2,j) = z;
+        t(3,j) = x;
+%             t(2,k) = y;            
+%             t(3,i) = w;
+% %             t(1,i) = z;
+%             t(1,j) = w;
+%             t(2,j) = z;
+%             t(3,j) = x;        
+        
+%             t(1,i) = w;
+            
     end
 end
+end
+       
+%  % lets begin the refinement part, working on edges %
+%     nedges = length(e);
+%     for i=1:nedges
+%         n1 = e(1,i);
+%         n2 = e(2,i);
+%         v1 = p(:,n1); % vertex 1
+%         v2 = p(:,n2); % vertex 2
+%         M1 = metric_t(:,:,n1);
+%         M2 = metric_t(:,:,n2);
+%         Mavg = (M1+M2)/2;
+%         v = v1 - v2;
+%         vt = v.';
+%         temp = Mavg*v;
+%         L = sqrt((vt)*temp);       
+%         fprintf('\nlength of edge %f and %d is',n1,n2);
+%         L 
+%     end
+
 %  l1 = sqrt(v1'*metric_t(:,:,n1)*v1);
 %         l2 = sqrt(v2'*metric_t(:,:,n2)*v2);
 %         if (l1+l2)~=0
