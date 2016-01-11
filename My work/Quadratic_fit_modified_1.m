@@ -1,8 +1,10 @@
-function [Hess1]=Quadratic_fit_modified_1(p, e, t, sol)
+function Quadratic_fit_modified_1(p, e, t, sol)
 % This function incorporates methods for under and over determined systems.
 % p-points, e-edges, t-triangles
 nnodes = length(p);
 Hess1 = zeros(nnodes,1);
+% 3D array to hold metric tensors
+metric_t = zeros(2,2,nnodes);
 for k=1:nnodes
     % checking which triangles have node k as first vertex
     t1 = find(t(1,:) == k);
@@ -106,13 +108,39 @@ for k=1:nnodes
         c = b\A;
     end
     hess = [2*c(1) c(3); c(3) 2*c(2)];
-    Hess1(k) = norm(hess,Inf);
-    % Hess1(k)=norm(hess);
-    %******************************************************************5
-    % lets begin the refinement part %
-    %        write_file(p,e,t,Hess,'Elliptic');
+    % Eigen value decomposition of hess
+    [V,D] = eig(hess);
+    D = abs(D);
+    met = V*D*inv(V);
+    metric_t(:,:,k) = met;
+    % Hess1(k) = norm(hess,Inf);
+    % Hess1(k)=norm(hess);   
 end
-
+ % lets begin the refinement part, working on edges %
+    nedges = length(e);
+    for i=1:nedges
+        n1 = e(1,i);
+        n2 = e(2,i);
+        v1 = p(:,n1); % vertex 1
+        v2 = p(:,n2); % vertex 2
+        M1 = metric_t(:,:,n1);
+        M2 = metric_t(:,:,n2);
+        Mavg = (M1+M2)/2;
+        v = v1 - v2;
+        vt = v.';
+        temp = Mavg*v;
+        L = sqrt((vt)*temp);       
+        fprintf('\nlength of edge %f and %d is',n1,n2);
+        L 
+    end
+end
+%  l1 = sqrt(v1'*metric_t(:,:,n1)*v1);
+%         l2 = sqrt(v2'*metric_t(:,:,n2)*v2);
+%         if (l1+l2)~=0
+%           L = 2*(l1^2+l1*l2+l2^2)/(l1+l2)*3;
+%         else 
+%           L = 0;
+%         end
 
 
 
