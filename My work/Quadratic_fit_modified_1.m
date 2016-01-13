@@ -9,18 +9,18 @@ for k=1:nnodes
     % checking which triangles have node k as first vertex
     t1 = find(t(1,:) == k);
     % triangle t1 has node k as first vertex, lets look for other vertices
-    nb1 = find(t(2,t1));
-    nb2 = find(t(3,t1));
+    nb1 = t(2,t1);
+    nb2 = t(3,t1);
     % checking which triangles have node k as second vertex
     t2 = find(t(2,:) == k);
     % t2 has node k as 2nd vertex, lets look for other vertices
-    nb3 = find(t(1,t2));
-    nb4 = find(t(3,t2));
+    nb3 = t(1,t2);
+    nb4 = t(3,t2);
     % checking which triangles have node k as third vertex
     t3 = find(t(3,:) == k);
     % t3 has node k as 23rd vertex, lets look for other vertices
-    nb5 = find(t(1,t3));
-    nb6 = find(t(3,t3));
+    nb5 = t(1,t3);
+    nb6 = t(3,t3);
     % neighbs- neighbour vector
     neighbs = [nb1  nb2  nb3  nb4  nb5  nb6];
     neighbs = neighbs';
@@ -76,13 +76,13 @@ for k=1:nnodes
     % format long
     % there is some rank issue sort it out.
     if(s<6) % under determined system x = M'inv(MM')Y
-        M = A*A';
-        if M == M' % checking if M is symmetric
+        M = A*(A.');
+        if M == M.' % checking if M is symmetric
             [T,p1] = chol(M); % trying to get the cholesky factorization.
             if p1==0 % means M is positive definite, T is valid
-                w = T\b;
-                z = T'\w;
-                c = A'*z; % solving for coefficient matrix c
+                w = double(T\b);
+                z = double(T.'\w);
+                c = double(A.'*z); % solving for coefficient matrix c
             end
         end
     elseif(s>6) % over determined system x=inv(M'M)M'y
@@ -91,7 +91,7 @@ for k=1:nnodes
             % [Q,R]=qr(A); QR factorization.
             R = QR_HOUSE(A);
             Q = Q_HOUSE(R);
-            u = Q'*b;
+            u = Q.'*b;
             % solving for c by backward substitution
             c(6) = b(6)/R(6,6);
             for i = n:1
@@ -111,7 +111,9 @@ for k=1:nnodes
     % Eigen value decomposition of hess
     [V,D] = eig(hess);
     D = abs(D);
-    met = V*D*inv(V);
+    % might have to change it to VDinv(V)
+    % met = V*D*inv(V);
+    met = V*D*V.';
     metric_t(:,:,k) = met;
     % Hess1(k) = norm(hess,Inf);
     % Hess1(k)=norm(hess);   
@@ -186,8 +188,7 @@ for i = 1:ntris-1
             
     end
 end
-end
-       
+% swapping edges ends here.
 %  % lets begin the refinement part, working on edges %
 %     nedges = length(e);
 %     for i=1:nedges
@@ -202,9 +203,13 @@ end
 %         vt = v.';
 %         temp = Mavg*v;
 %         L = sqrt((vt)*temp);       
-%         fprintf('\nlength of edge %f and %d is',n1,n2);
+%         fprintf('\nlength of edge %d and %d is',n1,n2);
 %         L 
 %     end
+end
+
+
+
 
 %  l1 = sqrt(v1'*metric_t(:,:,n1)*v1);
 %         l2 = sqrt(v2'*metric_t(:,:,n2)*v2);
