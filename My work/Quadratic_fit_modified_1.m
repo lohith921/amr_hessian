@@ -128,22 +128,29 @@ for i = 1:ntris-1
     X = p(:,x);
     Y = p(:,y);
     Z = p(:,z);
+    w = 0;
+    Nbs = [x y z];
     j = 1;
     while(j~=ntris)
-        if(t(1,j)==y && t(3,j)==z)
-           flag = 1;
+        if j==i
+            j=j+1;
+            continue;
+        else
+        if( any(Nbs(:)==t(3,j)) & any(Nbs(:)==t(1,j)))
+%            flag = 1;
            w = t(2,j);
            break;
-        elseif( t(3,j)==y && t(2,j) == z)
-            flag = 2;
+        elseif( any(Nbs(:)==t(2,j)) & any(Nbs(:)==t(3,j)))
+%             flag = 2;
             w = t(1,j);
             break;
-        elseif(t(2,j)==y && t(1,j)==z)
-            flag = 3;
+        elseif( any(Nbs(:)==t(1,j)) & any(Nbs(:)==t(2,j)))
+%             flag = 3;
             w = t(3,j);
             break;
         else
             j = j+1;
+        end
         end
     end
     W = p(:,w);
@@ -175,8 +182,8 @@ for i = 1:ntris-1
         end
         t(3,i) = w;
         t(1,j) = w;
-        t(2,j) = z;
-        t(3,j) = x;
+        t(2,j) = y;
+        t(3,j) = z;
 %             t(2,k) = y;            
 %             t(3,i) = w;
 % %             t(1,i) = z;
