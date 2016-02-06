@@ -48,6 +48,8 @@ setappdata(pde_fig,'refinemethod','regular');
 setappdata(pde_fig,'jiggle',char('on','mean',''));
 setappdata(pde_fig,'MesherVersion','preR2013a');
 pdetool('initmesh')
+pdetool('refine')
+pdetool('refine')
 
 % PDE coefficients:
 pdeseteq(1,...
@@ -67,7 +69,7 @@ setappdata(pde_fig,'currparam',...
 
 % Solve parameters:
 setappdata(pde_fig,'solveparam',...
-char('0','1000','10','pdeadworst',...
+char('0','7440','10','pdeadworst',...
 '0.5','longest','1','1e-4','','fixed','inf'))
 
 % Plotflags and user data strings:

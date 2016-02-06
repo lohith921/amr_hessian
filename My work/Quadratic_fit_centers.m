@@ -37,14 +37,18 @@ for k=1:ntris
         A(i,5) = X(i,1)*X(i,2); % xi*yi
     end
     % Ac = b is an under determined system.
-    M = A*A';
-    % b = A'*b;
+%     M = A*A';
+At = A';
+M = At*A;
+    b = At*b;
     if M == M' % checking if M is symmetric
-        [T,p1] = chol(M); % trying to get the cholesky factorization.
+       [T,p1] = chol(M); % trying to get the cholesky factorization.
+%        [L,U] = lu(M);
         if p1 == 0 % means M is positive definite, T is valid
-            w = T\b;
-            z = T'\w;
-            c = A'*z; % solving for coefficient matrix c
+            w = L\b;
+            z = U\w;
+            c = z;
+            %c = A'*z; % solving for coefficient matrix c
         end
     end
     hess = [2*c(1) c(5); c(5) 2*c(2)];
