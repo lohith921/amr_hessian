@@ -2,17 +2,24 @@ function [ x ] = preconditioned_CGM( A, b, M )
 % This program computes the solution of the system Ax=b using the CGM
 % method with M as preconditioner. It returns vector x. Here A is
 % non-singular
-n = size(b); % dimension of system.
+[n,~] = size(b); % dimension of system.
 x = zeros(n,1); % x0 =0
+x1 = x;
 r = b; % r0 = b;
-z = cholesky_solvertrid(M,rk); % z0 = inv(M)r0
+%z = cholesky_solvertrid(M,rk); % z0 = inv(M)r0
+Z = cholesky_factorization(M);
+y = forward_substitution(Z,r);
+z = back_substitution((Z.'),y);
 p = z; % p0 = z0
 while r ~= 0
-    alpha = (z.')*r/(p.')*A*p;
+    alpha = ((z.')*r)/((p.')*A*p);
     x1 = x + alpha*p; % Xj+1 = Xj + alphaPj
     r1 = r - alpha*p; % rj+1 = rj + alphaPj
-    z1 = cholesky_solvertrid(M,r1);
-    beta = (z1.')*r1/(z.')*r; % beta = (rj+1,zj+1)/(rj,zj)
+    Z1 = cholesky_factorization(M);
+    y1 = forward_substitution(Z1,r1);
+    z1 = back_substitution((Z1.'),y1);
+%z1 = cholesky_solvertrid(M,r1);
+    beta = ((z1.')*r1)/((z.')*r); % beta = (rj+1,zj+1)/(rj,zj)
     p = z1 + beta*p;
     r = r1;
     z = z1;
