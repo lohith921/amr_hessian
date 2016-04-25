@@ -77,7 +77,7 @@ for k=1:nnodes
     % there is some rank issue sort it out.
     if(s<6) % under determined system x = M'inv(MM')Y
         M = A*(A.');
-        if M == M.' % checking if M is symmetric
+        if M == (M.') % checking if M is symmetric
             [T,p1] = chol(M); % trying to get the cholesky factorization.
             if p1==0 % means M is positive definite, T is valid
                 w = double(T\b);
@@ -118,9 +118,12 @@ for k=1:nnodes
     % Hess1(k) = norm(hess,Inf);
     % Hess1(k)=norm(hess);   
 end
+
+
 % lets consider swapping edges
 ntris = length(t);
 nedge = length(e);
+% code for swapping edges
 for i = 1:ntris-1
     x = t(1,i);
     y = t(2,i);
@@ -136,15 +139,16 @@ for i = 1:ntris-1
             j=j+1;
             continue;
         else
-        if( any(Nbs(:)==t(3,j)) & any(Nbs(:)==t(1,j)))
+% we will find nodes which form a quadrilateral with each edge. 
+        if( any(Nbs(:)==t(3,j)) && any(Nbs(:)==t(1,j)))
 %            flag = 1;
            w = t(2,j);
            break;
-        elseif( any(Nbs(:)==t(2,j)) & any(Nbs(:)==t(3,j)))
+        elseif( any(Nbs(:)==t(2,j)) && any(Nbs(:)==t(3,j)))
 %             flag = 2;
             w = t(1,j);
             break;
-        elseif( any(Nbs(:)==t(1,j)) & any(Nbs(:)==t(2,j)))
+        elseif( any(Nbs(:)==t(1,j)) && any(Nbs(:)==t(2,j)))
 %             flag = 3;
             w = t(3,j);
             break;
