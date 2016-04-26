@@ -3,15 +3,15 @@ function mesh = readmesh2_modified(filebase)
 type1 = 'node';
 type2 = 'ele';
 type3 = 'neigh';
-filebase
+%filebase
 % Read in nodes
 file = sprintf('%s.%s',filebase,type1);
-[num_nodes,attr] = textread(file,'%d %*d %d %*d',1);
+[num_nodes, attr] = textread(file,'%d %*d %d %*d',1);
 nodes = zeros(num_nodes,2);
-if (attr==0)
+if (attr == 0)
   [nodes(:,1), nodes(:,2) boundary] = textread(file,'%*d %f %f %d',...
      num_nodes,'headerlines',1);
-elseif (attr==1)
+elseif (attr == 1)
   [nodes(:,1), nodes(:,2) boundary] = textread(file,'%*d %f %f %*f %d',...
      num_nodes,'headerlines',1);
 end;
@@ -25,7 +25,7 @@ ele = zeros(num_ele,3);
 %%%%%%%%%%%%%
 % comment it for suzanne
 % for hydrocephalus..need to comment it
-ele=ele+1;
+ele = ele+1;
 
 % lets read neighbour file
 file = sprintf('%s.%s',filebase,type3);
