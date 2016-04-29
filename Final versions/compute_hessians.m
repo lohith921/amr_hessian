@@ -1,4 +1,4 @@
-% The following code is going to assemble Load Matrix using construct_A, solve using SPSD solvers and compute hessians using 
+% The following code is going to assemble stiffness Matrix using construct_A, solve using SPSD solvers and compute hessians using 
 % Quadratic fitting. This is all for now, refinement and interpolation will be added soon.
 % clear all;
 close all;
@@ -16,9 +16,13 @@ M_tensor = Quadratic_fit_modified_1(mesh.coords, mesh.tris, sol);
 nele = length(mesh.tris);
 nnodes = length(mesh.coords);
 limit = 10^10;
-for i = 1:nele
+num_e = nele;
+for i = 1:num_e
     %[n1, n2, n3] = mesh.tris(i,:);
     n1 = mesh.tris(i,1); n2 = mesh.tris(i,2); n3 = mesh.tris(i,3);
+%     n1 
+%     n2 
+%     n3
     M1 = M_tensor(:,:,n1);
     M2 = M_tensor(:,:,n2);
     M3 = M_tensor(:,:,n3);
@@ -28,16 +32,20 @@ for i = 1:nele
         mid1 = (mesh.coords(n1,:) + mesh.coords(n2,:))/2;
         mid2 = (mesh.coords(n2,:) + mesh.coords(n3,:))/2;
         mid3 = (mesh.coords(n3,:) + mesh.coords(n1,:))/2;
-        
+                
         mesh.coords(m1,:) = mid1;
         mesh.coords(m2,:) = mid2;
         mesh.coords(m3,:) = mid3;
         
+        M_tensor(:,:,m1) = (M1 + M2)/2;
+        M_tensor(:,:,m2) = (M2 + M3)/2;
+        M_tensor(:,:,m3) = (M3 + M1)/2;
+        
         nnodes = nnodes + 3;
         
         [nb1, ot1] = find_neighbor_with(n2, n1, mesh.tris);
-        [nb2, ot2] = find_neighbor_with(n2, n3, mesh.tris);
-        [nb3, ot3] = find_neighbor_with(n3, n1, mesh.tris);
+        [nb2, ot2] = find_neighbor_with(n3, n2, mesh.tris);
+        [nb3, ot3] = find_neighbor_with(n1, n3, mesh.tris);
         
         if ~isempty(nb1)
             nele = nele + 1;

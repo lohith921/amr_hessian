@@ -7,10 +7,10 @@ function [n, ot] = find_neighbor_with(p1, p2, tri)
     ot = 3;
     if isempty(n)
         n = find((tri(:,2) == p1) & (tri(:,3) == p2));
-        ot = 2;
+        ot = 1;
         if isempty(n)
             n = find((tri(:,3) == p1) & (tri(:,1) == p2));
-            ot = 1;
+            ot = 2;
         end
     end
 end

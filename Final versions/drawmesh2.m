@@ -16,9 +16,9 @@ for i=1:n
   ynode2=mesh.coords(tri2,2);
   ynode3=mesh.coords(tri3,2);
 
-  b1=mesh.border(tri1);
-  b2=mesh.border(tri2);
-  b3=mesh.border(tri3);
+  b1 = mesh.border(tri1);
+  b2 = mesh.border(tri2);
+  b3 = mesh.border(tri3);
 % fprintf('triangle %d, node numbers are %d %d %d\n',i,tri1,tri2,tri3);
 
 
