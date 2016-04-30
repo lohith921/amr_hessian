@@ -1,9 +1,10 @@
+function compute_hessians(file_name)
 % The following code is going to assemble stiffness Matrix using construct_A, solve using SPSD solvers and compute hessians using 
 % Quadratic fitting. This is all for now, refinement and interpolation will be added soon.
 % clear all;
 close all;
 %file_name = input('Please input the root of mesh files', 'S');
-mesh = readmesh2('simple');
+mesh = readmesh2(file_name);
 % construct_A is used to construct stiffness matrix
 [A, b] = construct_A(mesh);
 % L is lower triangular matrix from incomplete cholesky factorization
@@ -12,6 +13,7 @@ L = incomplete_cholesky(A);
 sol = preconditioned_CGM(A, b, L);
 % M_tensor is the metric tensor at each node. We call Quadratic fit to compute it.
 M_tensor = Quadratic_fit_modified_1(mesh.coords, mesh.tris, sol);
+%avg_tensor = det(mean(M_tensor(1:2, 1:2, :)));
 % nele is the # of triangles
 nele = length(mesh.tris);
 nnodes = length(mesh.coords);
@@ -29,6 +31,7 @@ for i = 1:num_e
     Mavg = (M1 + M2 + M3)/3;
     if (det(Mavg) > limit)
         m1 = nnodes + 1; m2 = nnodes + 2; m3 = nnodes + 3;
+        
         mid1 = (mesh.coords(n1,:) + mesh.coords(n2,:))/2;
         mid2 = (mesh.coords(n2,:) + mesh.coords(n3,:))/2;
         mid3 = (mesh.coords(n3,:) + mesh.coords(n1,:))/2;
@@ -75,7 +78,9 @@ for i = 1:num_e
         nele = nele + 3;
     end
 end
-
+drawmesh2_simple(mesh);
+%write_file(mesh, file_name);
+end
 % removed code
 % node_file = sprintf('%s.M.%s',file_name,'node');
 % ele_file = sprintf('%s.M.%s',file_name,'ele');
@@ -93,3 +98,6 @@ end
 %         
 %         nnodes = nnodes + 3;
 %         for 1:
+%         mesh.border(m1) = mesh.border(n1,1) & mesh.border(n2,1);
+%         mesh.border(m2) = mesh.border(n2,1) & mesh.border(n3,1);
+%         mesh.border(m3) = mesh.border(n3,1) & mesh.border(n1,1);

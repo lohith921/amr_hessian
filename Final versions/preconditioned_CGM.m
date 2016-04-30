@@ -25,7 +25,7 @@ while (error <= (10^-3) )
     beta = (transpose(r1)*z1)/(transpose(r)*z); % beta = (rj+1,zj+1)/(rj,zj)
     p1 = z1 + beta*p;
     error = norm(r1-r,2);
-    error
+    %error
     r = r1;
     z = z1;
     x = x1;

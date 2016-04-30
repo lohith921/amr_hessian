@@ -1,28 +1,12 @@
 function [MassMat, b] = construct_A(mesh )
 %Script to compute the weights using discretization of Laplace's equation.
-%clear all;
-%close all;
-%warning off;
-% Get input
-%filebase=input('Enter the name of the mesh:  ');
-%filebase=input('shape');
-% Read-in initial mesh
-% mesh=readmesh2('bar_i');
-%mesh=readmesh2('a_shape.1');
-%mesh = readmesh2('my_shape');
-% mesh=readmesh2('four_circles');
-%mesh=readmesh2('cylinder_boundary_smoothed_initial');
-%figure;
-%drawmesh2(mesh);
-%inverted = evalquality2(mesh,filebase,1,1);
-% Number of nodes (200)
 p = mesh.coords;
 n = length(p);
-% Determine interior nodes (135)
+% Determine interior nodes 
 interior = find(mesh.border < 1);
 counter = length(interior);
 i = counter;
-% Determine boundary nodes (65)
+% Determine boundary nodes 
 boundary = find(mesh.border > 0);
 b = length(boundary);
 % Create space for A.
@@ -33,21 +17,21 @@ glbal = [interior' boundary'];
 % Compute local stiffness matrices and then assemble then into 
 % global stiffness matrix.
 for k = 1:length(mesh.tris)
-  % Get this tri.
-  mytris = mesh.tris(k,:);
+  % Get this tri nodes. mytris~~ my triangle.
+  tri_nodes = mesh.tris(k,:);
   % Get global ordering for this tri.
-  g1 = find(glbal == mytris(1));
-  g2 = find(glbal == mytris(2));
-  g3 = find(glbal == mytris(3));
+  g1 = find(glbal == tri_nodes(1));
+  g2 = find(glbal == tri_nodes(2));
+  g3 = find(glbal == tri_nodes(3));
   % Get x, y coordinates for vertices.
-  X = mesh.coords(mytris,1);
-  Y = mesh.coords(mytris,2);
+  X = mesh.coords(tri_nodes,1);
+  Y = mesh.coords(tri_nodes,2);
   x1 = X(1);  y1 = Y(1);
   x2 = X(2);  y2 = Y(2);
   x3 = X(3);  y3 = Y(3);
   % Compute shape functions for this triangle.
   % Compute phi1, phi2, phi3.
-  denom = x3*y1-x3*y2-x2*y1-x1*y3+x1*y2+x2*y3;
+  denom = x3*y1 - x3*y2 - x2*y1 - x1*y3 + x1*y2 + x2*y3;
   m1 = (-y3+y2)/denom;
   n1 = -(x2-x3)/denom;
   m2 = (-y1+y3)/denom;
@@ -62,7 +46,7 @@ for k = 1:length(mesh.tris)
   v1 = [alpha_aniso.*m1; beta_aniso.*n1];
   v2 = [alpha_aniso.*m2; beta_aniso.*n2];
   v3 = [alpha_aniso.*m3; beta_aniso.*n3];
-  % Compute delta.
+  % Compute area.
   delta = abs(det([x1 y1 1; x2 y2 1; x3 y3 1]));
   % Compute dot products of gradients.
   A(g1,g1) = A(g1,g1)+dot(v1,v1)*0.5*delta;
@@ -84,19 +68,37 @@ for k = 1:length(mesh.tris)
 %   B(g1) = 0.1;
 %   B(g2) = 0.1;
 %   B(g3) = 0.1;
-MassMat = A;
+%% Applying dirichlet boundary conditions.
+  A(boundary,:) = 0;
+  A(:,boundary) = 0;
+  for i=1:length(boundary)
+    A(boundary(i),boundary(i)) = 1;
+  end
+  B(boundary,:) = 0.1;
+  MassMat = A;
 b = B;
 end;
-%% Applying dirichlet boundary conditions.
-% A(boundary,:) = 0;
-% A(:,boundary) = 0;
-% for i=1:length(boundary)
-%     A(boundary(i),boundary(i)) = 1;
-% end
-% B(boundary,:) = 0;
+
 %%
 % i
 %drawmesh2(mesh);
+%clear all;
+%close all;
+%warning off;
+% Get input
+%filebase=input('Enter the name of the mesh:  ');
+%filebase=input('shape');
+% Read-in initial mesh
+% mesh=readmesh2('bar_i');
+%mesh=readmesh2('a_shape.1');
+%mesh = readmesh2('my_shape');
+% mesh=readmesh2('four_circles');
+%mesh=readmesh2('cylinder_boundary_smoothed_initial');
+%figure;
+%drawmesh2(mesh);
+%inverted = evalquality2(mesh,filebase,1,1);
+% Number of nodes (200)
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % jacobian matrix
 %   ele_7=[x2-x1 x3-x1;y2-y1 y3-y1];
