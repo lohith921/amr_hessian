@@ -62,7 +62,6 @@ struct amrgeo {
        		values = NULL;
        	}
  };
- void compute_quality(struct element*, struct node_map*);
   void tokenize(std::string str, std::string *token_v);
   REAL* compute_mid(REAL*, REAL*);
   REAL calc_length(REAL *, REAL *);
