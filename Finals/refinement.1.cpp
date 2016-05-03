@@ -1,26 +1,14 @@
 /* This program takes input the root of .node and .ele files  */
-#ifdef SINGLE
-#define REAL float
-#else
-#define REAL double
-#endif
 
-#include <cmath>
-#include <string>
-#include <vector>
 #include <map>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
 #include "mmap_lib_p.h"
 #include "structures.h"
 
 static int num_ele  =  0; // to keep track of total no of elements
 static int num_nodes = 0; // to keep track of total no of nodes
 
-/********************************************************************/
+/*************** Insert elements *****************************************************/
 void insert_element(struct element *head_ele, struct element *t){
-	//std::cout << "Entered insert element " << std::endl;
 	struct element *temp;
 	temp = new element();
 	if(head_ele->next == NULL)
@@ -39,13 +27,11 @@ void print_element(struct element *e){
 	printf("#: %d, Nodes %d, %d, %d\n",e->ele_no,e->nodes[0],e->nodes[1],e->nodes[2]);
 }
 
-/**********************************************************************/
+/****************** Processes each element ****************************************************/
 //void process(struct element *el, struct node_map *n_map, struct edge_map* emap, int tol){
 void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
-     //printf("Entered process for the element: %d\n",el->ele_no);
      struct element *temp1, *temp2;
-	// REAL *midAB, *midBC, *midCA;
-     int i, j, eleno, vertices[3]; 
+	 int i, j, eleno, vertices[3]; 
      temp1 = el;
      if (el != NULL){
 		REAL *vertexA,*vertexB,*vertexC;
@@ -54,7 +40,7 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 		vertexB = new REAL[2];
 		vertexC = new REAL[2];
 		struct element *nw, *nw2, *nw3;
-		if(n_map != NULL){
+		if (n_map != NULL){
 			vertexA = map_getnode(n_map,temp1->nodes[0]);
 			vertexB = map_getnode(n_map,temp1->nodes[1]);
 			vertexC = map_getnode(n_map,temp1->nodes[2]);
@@ -65,9 +51,8 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 		}
 		length = calc_length(vertexA, vertexB);
 		//std::cout << "Length AB for " << temp1->ele_no << " is " << length << std::endl;
-		if (length >= 0.707 && length <= 1.414){
-			//processAB(temp1, n_map, emap, vertexA, vertexB);
-			midAB  =  new REAL[2]; //(REAL *)malloc(2*sizeof(REAL));
+		if ( length > 1.414){
+			midAB  =  new REAL[2]; 
 			midAB  =  compute_mid(vertexA, vertexB);
 			num_nodes++;
 			map_setnode(n_map, num_nodes, midAB);
@@ -76,7 +61,7 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 			nw->nodes[0]  =  num_nodes;
 			nw->nodes[1]  =  temp1->nodes[1];
 			nw->nodes[2]  =  temp1->nodes[2];
-			set_nedgemap(emap,nw->nodes);
+			set_nedgemap(emap, nw->nodes);
 			temp1->nodes[1]  =  num_nodes;
 			set_nedgemap(emap, temp1->nodes);
 			nw->next  =  temp1->next;
@@ -114,7 +99,7 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 			//std::cout << "Calling calc_length BC for element " << temp1->ele_no << std::endl;
 		length = calc_length(vertexB, vertexC);
 		//std::cout << "Length BC for " << temp1->ele_no << " is " << length << std::endl;
-		if (length >= 0.707 && length <= 1.414){
+		if (length > 1.414){
         // printf("90\n");
 			midBC  =  new REAL[2];
 			midBC  =  compute_mid(vertexB, vertexC);
@@ -164,9 +149,9 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 			return;
 		}
     		//std::cout << "Calling calc_length CA for element " << temp1->ele_no << std::endl;
-    	length  =  calc_length(vertexC,vertexA);
+    	length  =  calc_length(vertexC, vertexA);
 		//std::cout << "Length CA for " << temp1->ele_no << " is " << length << std::endl;
-    	if(length >= 0.707 && length <= 1.414){ //   printf("91\n");
+    	if(length > 1.414){ //   printf("91\n");
     		midCA  =  new REAL[2];
 			midCA  =  compute_mid(vertexC,vertexA); 
 			num_nodes++;
@@ -220,7 +205,7 @@ void process(struct element *el, struct node_map *n_map, struct edge_map* emap){
 		//temp1 = temp1->next;
 		//process(temp1, n_map, emap, tol);
 		return ;
-		}
+	}
 }
 
 /************************************************************************
@@ -277,7 +262,6 @@ int main(int argc, char **argv){
 	//display_elements(head_ele);
 	/* following code reads node file and creates node map. */
 	
-	//std::cout << "1" << std::endl;
 	char dmy1[3];
 	char dmy2[1];
 	/* creating a map of nodes */
