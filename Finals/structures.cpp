@@ -7,38 +7,30 @@
 #include "structures.h"
 #include "mmap_lib_p.h"
 
-#ifdef SINGLE
-#define REAL float
-#else
-#define REAL double
-#endif
-
 /*************** Quality function ***************************/
 void compute_quality(struct element* el, struct node_map* nmap){
 	std::cout << "compute quality is called" << std::endl;	
 	struct element* temp;
 	REAL l1, l2, l3, A, p = 0.0, q;
-	REAL* L = new REAL[3];
-	REAL** vertices;
-	*vertices = new REAL[3];
-	vertices[1] = new REAL[2];
+	REAL *vertexA, *vertexB, *vertexC;
+	vertexA = new REAL[2];
+	vertexB = new REAL[2];
+	vertexC = new REAL[2];
 	temp = el;
 	if(nmap != NULL){
 		while (temp != NULL){
-			for(int i = 0;i < 3;i++){
-				vertices[i] = new REAL[2];
-				vertices[i] = map_getnode(nmap,temp->nodes[i]);
-			}				
-			for (int j = 0;j < 3;j++){
-				for( int k = 0;k < 2;k++){
-					L[j] += pow((vertices[j][k] - vertices[(j+1)%3][k]),2);
-				}
-				L[j] = sqrt(L[j]);
-				p += L[j];
-			}
-			p /= 2;
-			A = sqrt(p*(p-L[1])*(p-L[2])*(p-L[3]));
-			q = 6.928203*A/(pow(L[1],2) + pow(L[2],2) + pow(L[3],2));
+			vertexA = map_getnode(nmap, temp->nodes[0]);
+			vertexB = map_getnode(nmap, temp->nodes[1]);
+			vertexC = map_getnode(nmap, temp->nodes[2]);
+			l1 = pow((vertexA[0] - vertexB[0]),2) + pow((vertexA[1] - vertexB[1]),2);
+			l1 = sqrt(l1);
+			l2 = pow((vertexB[0] - vertexC[0]),2) + pow((vertexB[1] - vertexC[1]),2);
+			l2 = sqrt(l2);
+			l3 = pow((vertexC[0] - vertexA[0]),2) + pow((vertexC[1] - vertexA[1]),2);
+			l3 = sqrt(l3);
+			p = (l1 + l2 + l3)/2;
+			A = sqrt(p*(p-l1)*(p-l2)*(p-l3));
+			q = 6.928203*A/(pow(l1,2) + pow(l2,2) + pow(l3,2));
 			temp->qual = q;
 			temp = temp->next;
 		}
@@ -49,9 +41,6 @@ void compute_quality(struct element* el, struct node_map* nmap){
 	}
 	
 }
-//vertexA = map_getnode(nmap,temp->nodes[0]);
-		//vertexB = map_getnode(nmap,temp->nodes[1]);
-		//vertexC = map_getnode(nmap,temp->nodes[2]);
 /**************String tokenizer for reading files*********************/
 void tokenize(std::string str, std::string *token_v){
 	//std::cout << "Tokenizer called " << std::endl;
@@ -79,14 +68,11 @@ REAL * compute_mid(REAL *vA, REAL *vB){
 
 /*******************************************************************/
 REAL calc_length(REAL *A, REAL *B){
-	//std::cout << "Calc_length is called " << std::endl;
-	//std::cout << "The vertices are " << A[0] << " " << A[1] << " " << B[0] << " " << B[1] << std::endl;
 	REAL d1,d2,d;
 	d1 = A[0]-B[0];
 	d2 = A[1]-B[1];
 	REAL temp = (d1*d1) + (d2*d2);
 	d = std::sqrt(temp);
-	//std::cout << "Length from inside calc_length is " << d << std::endl;
 	return d;
 }
 /**********************************************************************/
@@ -95,18 +81,15 @@ void write_elements(std::string rt, struct element *el, int num_ele){
 	fp.open((rt + ".r.ele"), std::ios::out);
 	struct element *temp;
 	temp = el->next;
-	//std::cout << "Write_elements is called" << std::endl;
 	fp << num_ele << " " << 3 << std::endl; 
 	while(temp !=  NULL){
 		fp << temp->ele_no << " " << temp->nodes[0] << " " << temp->nodes[1] << " " << temp->nodes[2] << std::endl;
      		temp = temp->next;
 	}
-	fp.close(); //fclose(fp);
-	//std::cout << "Finished writing elements" << std::endl; //printf("finished writing elements\n");
+	fp.close(); 
 }
 /***********************************************************************/
 void write_nodes(std::string rt,struct node_map *m, int num_nodes){
-	//std::cout << "write_nodes is called" << std::endl;
 	std::ofstream fp;
 	struct node_map *temp = m;
 	fp.open((rt + ".r.node"),std::ios::out); 
@@ -114,11 +97,9 @@ void write_nodes(std::string rt,struct node_map *m, int num_nodes){
 	fp << num_nodes << " " << 2 << std::endl; 
 	while(temp!=  NULL){
 	 	fp << temp->point << " " << temp->xandy[0] << " " << temp->xandy[1] << std::endl;
-		//fprintf(fp," %d %f %f\n",temp->point,temp->xandy[0],temp->xandy[1]);//verts[1]);
-	 	temp = temp->nxt;  
+		temp = temp->nxt;  
 	}
 	fp.close();
-	//std::cout <<  "Finished writing nodes" << std::endl;
 }
 
 /*********************************************************************/
@@ -198,6 +179,17 @@ struct element* find_element(struct element *el, int n1, int n2, int n3){
 		 	//pv = temp;
 			temp = temp->next;
 			*/
+			/*for(int i = 0;i < 3;i++){
+				vertices[i] = new REAL[2];
+				vertices[i] = map_getnode(nmap,temp->nodes[i]);
+			}				
+			for (int j = 0;j < 3;j++){
+				for( int k = 0;k < 2;k++){
+					L[j] += pow((vertices[j][k] - vertices[(j+1)%3][k]),2);
+				}
+				L[j] = sqrt(L[j]);
+				p += L[j];
+			}*/
 /****************** Set edge map************************
 void set_nedgemap(std::map< std::pair<int,int>, int> m, int nodes_list[3]){
 	//std::cout << "Set edge map is called with " << nodes_list[0] << " " << nodes_list[1] << " " << nodes_list[2] << std::endl;

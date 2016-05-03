@@ -1,5 +1,4 @@
-/* This program takes input a .ele file or a .node files and a .neigh file with switches -e, -n and -p resp*/
-/* There is a small bug, the name of the file without extension should be 3 or more characters length*/
+/* This program takes input the root of .node and .ele files  */
 #ifdef SINGLE
 #define REAL float
 #else
@@ -248,13 +247,17 @@ int main(int argc, char **argv){
  	m->elefilename = (filename + ".ele");
  	m->nodefilename = (filename + ".node");
     fele.open(m->elefilename, std::ios::in);
+	fnode.open(m->nodefilename,std::ios::in); 
+	if(!fele || !fnode){
+		std::cout << "Files not found, exiting" << std::endl;
+		exit(0);
+	}
     //std::cout << "File opening successful " << std::endl;
     getline(fele, line);
 	tokenize(line, tok);
 	nele = std::stoi(tok[0]);
 	//std::cout << "No of elements is " << nele << std::endl;
 	emap = new edge_map();
-	j = 0;
 	for (int i = 1; i <= nele; i++){
 	     struct element *temp = new element();
 		 getline(fele, line);
@@ -273,7 +276,7 @@ int main(int argc, char **argv){
 	//std::cout << "Reading elements completed" << std::endl;
 	//display_elements(head_ele);
 	/* following code reads node file and creates node map. */
-	fnode.open(m->nodefilename,std::ios::in);
+	
 	//std::cout << "1" << std::endl;
 	char dmy1[3];
 	char dmy2[1];
@@ -282,7 +285,7 @@ int main(int argc, char **argv){
 	getline(fnode,line);
 	tokenize(line,tok);
 	nnode = std::stoi(tok[0]);
-		m->attribindi = std::stoi(tok[2]);
+	m->attribindi = std::stoi(tok[2]);
 	m->boundindi = std::stoi(tok[3]);
 	num_nodes  =  nnode;
 	j = 0;
@@ -303,9 +306,11 @@ int main(int argc, char **argv){
 	//display_edgemap(emap);
 	struct element *temp = head_ele->next;
 	std::cout << "Process is running" << std::endl;
+	compute_quality(temp, nodemap);
 	while (temp != NULL){
 		//process(temp, nodemap, emap, ideal_length);
-		process(temp, nodemap, emap);
+		//process(temp, nodemap, emap);
+		std::cout << "Quality is" << temp->qual << std::endl;
 		temp = temp->next;
 	}
 	head_ele = sort_list(head_ele);
