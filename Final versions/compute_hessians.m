@@ -50,31 +50,31 @@ function [mesh, old_mesh, sol] = compute_hessians(file_name)
                 mesh.tris(nele, :) = [n2 m1 nb13];
             end
         
-        if ~isempty(nb2)
-            nele = nele + 1;
-            nb21 = mesh.tris(nb2, ot2);
-            mesh.tris(nb2, :) = [n2 nb21 m2];
-            mesh.tris(nele, :) = [n3 m2 nb21];
-        end
+            if ~isempty(nb2)
+                nele = nele + 1;
+                nb21 = mesh.tris(nb2, ot2);
+                mesh.tris(nb2, :) = [n2 nb21 m2];
+                mesh.tris(nele, :) = [n3 m2 nb21];
+            end
         
-        if ~isempty(nb3)
-            nele = nele + 1;
-            nb32 = mesh.tris(nb3, ot3);
-            mesh.tris(nb3, :) = [n3 nb32 m3];
-            mesh.tris(nele, :) = [m3 nb32 n1];
-        end
+            if ~isempty(nb3)
+                nele = nele + 1;
+                nb32 = mesh.tris(nb3, ot3);
+                mesh.tris(nb3, :) = [n3 nb32 m3];
+                mesh.tris(nele, :) = [m3 nb32 n1];
+            end
         
-        mesh.tris(i,:) = [n1 m1 m3]; 
-        mesh.tris(nele + 1, :) = [m1 m2 m3];
-        mesh.tris(nele + 2, :) = [m1 n2 m2];
-        mesh.tris(nele + 3, :) = [m2 n3 m3];
-        nele = nele + 3;
+            mesh.tris(i,:) = [n1 m1 m3]; 
+            mesh.tris(nele + 1, :) = [m1 m2 m3];
+            mesh.tris(nele + 2, :) = [m1 n2 m2];
+            mesh.tris(nele + 3, :) = [m2 n3 m3];
+            nele = nele + 3;
+        end
     end
-end
-drawmesh2_simple(mesh);
-% write_file(mesh, file_name);
-% New mesh has been created, now lets solve for u on the new mesh using old mesh.
-% sol_new = interpolate(old_mesh, sol, mesh);
+    drawmesh2_simple(mesh);
+    % write_file(mesh, file_name);
+    % New mesh has been created, now lets solve for u on the new mesh using old mesh.
+    % sol_new = interpolate(old_mesh, sol, mesh);
 end
 
 
