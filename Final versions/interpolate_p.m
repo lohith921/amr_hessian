@@ -5,9 +5,9 @@ function [u_new] = interpolate_p(o_mesh, o_sol, n_mesh)
 n_ele = length(n_mesh.tris);                % # of elements in new mesh.
 n_nodes = length(n_mesh.coords);            % # of nodes in new mesh.
 N = zeros(n_nodes,n_nodes);                     % Nodal basis functions.
-u_new = zeros(n_nodes,1);                % Solution vector for new mesh.
-u_old = -1*ones(n_nodes,1);                   % Solution vector for old mesh
-W = zeros(n_nodes, n_nodes);                    % Weight matrix
+u_new = zeros(n_nodes,1);                	% Solution vector for new mesh.
+u_old = -1*ones(n_nodes,1);                 % Solution vector for old mesh
+W = zeros(n_nodes, n_nodes);                % Weight matrix
 % Compute local stiffness matrices and then assemble then into global stiffness matrix.
 for k = 1:n_ele
   tri_nodes = n_mesh.tris(k,:);               % contains node #'s of this triangle.
