@@ -27,9 +27,6 @@ for k = 1:n_ele
   dx31 = (x3 - x1); dy31 = (y3 - y1);
   dx32 = (x3 - x2); dy32 = (y3 - y2);
   
-  m32 = dy32/dx32;          m31 = dy31/dx31;
-  m21 = dy21/dx21;          
-  
   A = (dx21*dy31 - dx31*dy21)/2;
   denom = 4*A;
   % Find shape function values for Gauss points.
