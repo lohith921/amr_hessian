@@ -1,8 +1,7 @@
 function [MassMat, b] = construct_A(mesh )
 %Script to compute the weights using discretization of Laplace's equation.
-p = mesh.coords;
-n = length(p);
 % Determine interior nodes 
+uDirichlet = 0.5;                   % Dirichlet boundary constant
 interior = find(mesh.border < 1);
 counter = length(interior);
 i = counter;
@@ -41,8 +40,7 @@ for k = 1:length(mesh.tris)
   
   alpha_aniso = 1;
   beta_aniso = 1;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
-    
+      
   v1 = [alpha_aniso.*m1; beta_aniso.*n1];
   v2 = [alpha_aniso.*m2; beta_aniso.*n2];
   v3 = [alpha_aniso.*m3; beta_aniso.*n3];
@@ -59,27 +57,31 @@ for k = 1:length(mesh.tris)
   A(g3,g1) = A(g1,g3);
   A(g3,g2) = A(g2,g3);
   
-  coeff_1 = 0.1;
-%  
-%   
-  B(g1) = B(g1) + new_func(x1,y1, coeff_1)/12 + new_func(x2,y2, coeff_1)/12 + new_func(x3,y3, coeff_1)/12;
-  B(g2) = B(g2) + new_func(x1,y1, coeff_1)/12 + 2*new_func(x2,y2, coeff_1)/12 + new_func(x3,y3, coeff_1)/12;
-  B(g3) = B(g3) + new_func(x1,y1, coeff_1)/12 + new_func(x2,y2, coeff_1)/12 + 2*new_func(x3,y3, coeff_1)/12;
-%   B(g1) = 0.1;
-%   B(g2) = 0.1;
-%   B(g3) = 0.1;
-%% Applying dirichlet boundary conditions.
-  A(boundary,:) = 0;
-  A(:,boundary) = 0;
-  for i=1:length(boundary)
-    A(boundary(i),boundary(i)) = 1;
-  end
-  B(boundary,:) = 0.1;
+  B(g1) = B(g1) + new_func(x1,y1)/12 + new_func(x2,y2)/12 + new_func(x3,y3)/12;
+  B(g2) = B(g2) + new_func(x1,y1)/12 + 2*new_func(x2,y2)/12 + new_func(x3,y3)/12;
+  B(g3) = B(g3) + new_func(x1,y1)/12 + new_func(x2,y2)/12 + 2*new_func(x3,y3)/12;
+end
+  
+for k = 1:length(mesh.coords)
+    if (mesh.border(k,1) == 1)
+        for i = 1:length(mesh.coords)
+            B(i) = B(i) - A(i,k)*uDirichlet;    % uDirichlet is the dirichlet boundary condition value.
+            A(i,k) = 0;
+            A(k,i) = 0;
+        end
+        A(k,k) = 1;
+        B(k,1) = uDirichlet;
+    end   
+end
+%   A(boundary,:) = 0;
+%   A(:,boundary) = 0;
+%   B(boundary,:) = uDirichlet;                   % setting boundary condition on all boundary nodes  
   MassMat = A;
-b = B;
-end;
+  b = B;
+%
+end
 
-%%
+%
 % i
 %drawmesh2(mesh);
 %clear all;
@@ -99,7 +101,7 @@ end;
 %inverted = evalquality2(mesh,filebase,1,1);
 % Number of nodes (200)
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % jacobian matrix
 %   ele_7=[x2-x1 x3-x1;y2-y1 y3-y1];
 %   
@@ -134,6 +136,9 @@ end;
       
     % alpha_aniso=delta7(2,2);
     % beta_aniso=delta7(1,1);
+    %   for i=1:length(boundary)
+%     A(boundary(i),boundary(i)) = 1;
+%   end
     %%
 % trisurf((mesh.tris),mesh.coords(:,1),mesh.coords(:,2),0*mesh.coords(:,1),u,'edgecolor','k','facecolor','interp');
 % view(2), axis equal,colorbar;
