@@ -1,17 +1,16 @@
 function mesh = readmesh2(filebase)
 % Filenames
-
 type1 = 'node';
 type2 = 'ele';
 % Read in nodes
 file = sprintf('%s.%s',filebase,type1);
-[num_nodes,attr] = textread(file,'%d %*d %d %*d',1);
+[num_nodes, attr] = textread(file,'%d %*d %d %*d',1);
 nodes = zeros(num_nodes,2);
 if (attr == 0)
-  [nodes(:,1), nodes(:,2) boundary] = textread(file,'%*d %f %f %d',...
+  [nodes(:,1), nodes(:,2), boundary] = textread(file,'%*d %f %f %d',...
      num_nodes,'headerlines',1);
 elseif (attr == 1)
-  [nodes(:,1), nodes(:,2) boundary] = textread(file,'%*d %f %f %*d %d',...
+  [nodes(:,1), nodes(:,2), boundary] = textread(file,'%*d %f %f %*d %d',...
      num_nodes,'headerlines',1);
 end;
 
@@ -28,4 +27,4 @@ ele = zeros(num_ele,3);
 %ele=ele+1;
 
 %%%%%%%%%%%%%
-mesh = struct('coords',nodes,'tris',ele,'border',boundary);
+mesh = struct('coords', nodes, 'tris', ele, 'border', boundary);

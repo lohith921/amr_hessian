@@ -1,10 +1,10 @@
-function metric_t = Quadratic_fit_modified_1(p, t, sol)
+function metric_t = Quadratic_fit_modified_1(p, t, solution)
 % This function incorporates methods for under and over determined systems.
 % p-points, e-edges, t-triangles
-nnodes = length(p);
+n_nodes = length(p);
 % 3D array to hold metric tensors, 2x2 matrix for each node.
-metric_t = zeros(2,2,nnodes);
-for k = 1:nnodes
+metric_t = zeros(2,2,n_nodes);
+for k = 1:n_nodes
     % checking which triangles have node k as first vertex
     t1 = find(t(1,:) == k);
     % triangle t1 has node k as first vertex, lets look for other vertices
@@ -21,7 +21,7 @@ for k = 1:nnodes
     nb5 = t(1,t3);
     nb6 = t(3,t3);
     % neighbs- neighbour vector
-    neighbs = [nb1  nb2  nb3  nb4  nb5  nb6];
+    neighbs = [nb1 nb2 nb3 nb4 nb5 nb6];
     neighbs = neighbs';
     neighbs1 = unique(neighbs);
     % s is the # of neighbours
@@ -30,12 +30,12 @@ for k = 1:nnodes
     Nodes = zeros(s,1);
        %  b-solution vector for the nodes selected. choosing for easy notation
     %  purpose while using LU
-    b = zeros(s,1);
+    rsv = zeros(s,1);
     Nodes(1,1) = k;
     i = 2;
     % code for constructing node vector sx1
     for j = 1:s
-        if( neighbs1(j)~=0 && i<=6)
+        if( (neighbs1(j) ~= 0) && (i <= 6))
             Nodes(i,1) = neighbs1(j);
             i=i+1;
         end
@@ -43,15 +43,15 @@ for k = 1:nnodes
     %   node vector is done.
     %   now lets extract X, Y values for nodes and construct the matrix system
     %   Ac=u
-    A=zeros(s,6);
+    A = zeros(s,6);
     c = zeros(6,1);
-    A(:,6)=1;
-    for i=1:s
-        if(Nodes(i,1)~=0)
+    A(:,6) = 1;
+    for i = 1:s
+        if (Nodes(i,1) ~= 0)
             n = Nodes(i,1);
             x = p(n,1);
             y = p(n,2);
-            b(i,1) = sol(n,1);
+            rsv(i,1) = solution(n,1);
             A(i,1) = x*x;
             A(i,2) = y*y;
             A(i,3) = x*y;
@@ -60,7 +60,7 @@ for k = 1:nnodes
         else
             x = 0;
             y = 0;
-            b(i,1)=0;
+            rsv(i,1)=0;
             A(i,1) = x*x;
             A(i,2) = y*y;
             A(i,3) = x*y;
@@ -75,7 +75,7 @@ for k = 1:nnodes
         if M == (M.') % checking if M is symmetric
             [T,p1] = chol(M); % trying to get the cholesky factorization.
             if p1==0 % means M is positive definite, T is valid
-                w = double(T\b);
+                w = double(T\rsv);
                 z = double(T.'\w);
                 c = double(A.'*z); % solving for coefficient matrix c
             end
@@ -86,9 +86,9 @@ for k = 1:nnodes
             % [Q,R]=qr(A); QR factorization.
             R = QR_HOUSE(A);
             Q = Q_HOUSE(R);
-            u = (Q.')*b;
+            u = (Q.')*rsv;
             % solving for c by backward substitution
-            c(6) = b(6)/R(6,6);
+            c(6) = rsv(6)/R(6,6);
             for i = n:1
                 for j= i+1:n
                     su = su + R(i,j)*c(i);
@@ -97,7 +97,7 @@ for k = 1:nnodes
             end
         end
     else
-        c = b\A;
+        c = rsv\A;
     end
     hess = [2*c(1) c(3); c(3) 2*c(2)];
     % Eigen value decomposition of hess
